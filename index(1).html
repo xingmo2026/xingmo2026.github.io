@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d0b1a">
+<title>幻域官网</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:#0d0b1a;color:#e8e6f5;min-height:100vh;overflow-x:hidden;line-height:1.6}
+
+a{text-decoration:none;color:inherit}
+
+/* ===== 开场动画 ===== */
+#intro{position:fixed;inset:0;z-index:999999;background:radial-gradient(circle at 50% 50%,#1a1230 0%,#0d0b1a 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .8s ease,visibility .8s ease}
+#intro.hide{opacity:0;visibility:hidden;pointer-events:none}
+#intro .logo{font-size:clamp(48px,12vw,96px);font-weight:900;letter-spacing:.1em;background:linear-gradient(90deg,#ff7ac6,#a78bfa,#7dd3fc,#ff7ac6);background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:gradientMove 3s linear infinite,logoIn 1s cubic-bezier(.2,.8,.3,1.2) both}
+#intro .sub{margin-top:18px;font-size:clamp(13px,3vw,16px);color:#a8a3c4;letter-spacing:.4em;animation:fadeUp 1s .4s ease both}
+#intro .halo{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(255,122,198,.4),transparent 70%);animation:halo 2s ease-out infinite;pointer-events:none}
+#intro .line{position:absolute;bottom:80px;width:180px;height:2px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+#intro .line::after{content:'';position:absolute;left:0;top:0;height:100%;width:0;background:linear-gradient(90deg,#ff7ac6,#a78bfa);animation:loadBar 2s ease forwards}
+}
+@keyframes logoIn{from{opacity:0;transform:scale(.6) translateY(30px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+100%{transform:scale(2.2);opacity:0}}
+@keyframes loadBar{to{width:100%}}
+
+/* ===== 顶部导航 ===== */
+.top-nav{position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;align-items:center;justify-content:space-between;padding:14px 40px;background:rgba(13,11,26,.78);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.06);transition:.3s}
+.top-nav .brand{font-size:20px;font-weight:700;background:linear-gradient(90deg,#ff7ac6,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;cursor:pointer;white-space:nowrap}
+.top-nav .menu{display:flex;gap:26px;list-style:none;align-items:center}
+.top-nav .menu a{font-size:15px;color:#c9c4e0;transition:.2s;cursor:pointer;white-space:nowrap}
+.top-nav .menu a:hover{color:#ff7ac6}
+.burger{display:none;font-size:24px;cursor:pointer;color:#ff9ed8;background:none;border:none}
+.mobile-menu{display:none;position:fixed;top:60px;left:0;right:0;background:rgba(13,11,26,.98);backdrop-filter:blur(12px);padding:16px 0;z-index:9998;border-bottom:1px solid rgba(255,255,255,.08)}
+.mobile-menu.open{display:block}
+.mobile-menu a{display:block;padding:12px 24px;color:#c9c4e0;font-size:15px;border-bottom:1px solid rgba(255,255,255,.04)}
+.mobile-menu a:active{background:rgba(255,122,198,.1);color:#ff9ed8}
+
+/* ===== 液态玻璃按钮 ===== */
+.liquid-btn{
+  position:relative;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:10px 26px;border-radius:999px;
+  font-size:14px;font-weight:700;color:#fff;cursor:pointer;white-space:nowrap;
+  background:linear-gradient(135deg,rgba(255,122,198,.9),rgba(167,139,250,.9),rgba(125,211,252,.9));
+  background-size:200% 200%;
+  box-shadow:0 4px 20px rgba(255,122,198,.4),inset 0 0 20px rgba(255,255,255,.15);
+  border:1px solid rgba(255,255,255,.25);
+  overflow:hidden;
+  transition:transform .25s,box-shadow .25s;
+  animation:liquidFlow 4s ease infinite;
+  isolation:isolate;
+}
+@keyframes liquidFlow{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.liquid-btn::before{
+  content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(circle,rgba(255,255,255,.5),transparent 60%);
+  opacity:0;transform:scale(.5);transition:.6s;pointer-events:none;
+}
+.liquid-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,122,198,.6),inset 0 0 30px rgba(255,255,255,.25)}
+.liquid-btn:hover::before{opacity:.35;transform:scale(1.2)}
+.liquid-btn:active{transform:scale(.96)}
+.liquid-btn .ripple{
+  position:absolute;border-radius:50%;background:rgba(255,255,255,.7);
+  transform:scale(0);animation:rippleAnim .6s ease-out;pointer-events:none;
+}
+@keyframes rippleAnim{to{transform:scale(4);opacity:0}}
+.liquid-btn .glow{
+  position:absolute;inset:-2px;border-radius:999px;z-index:-1;
+  background:linear-gradient(90deg,#ff7ac6,#a78bfa,#7dd3fc,#ff7ac6);
+  background-size:300% 100%;
+  filter:blur(10px);opacity:.6;animation:liquidFlow 3s linear infinite;
+}
+
+/* ===== Hero ===== */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 20px 60px;background:radial-gradient(circle at 50% 30%,rgba(255,122,198,.18),transparent 60%),radial-gradient(circle at 80% 70%,rgba(167,139,250,.15),transparent 55%)}
+.hero .badge{display:inline-block;padding:6px 16px;border-radius:999px;background:rgba(255,122,198,.12);border:1px solid rgba(255,122,198,.3);color:#ff9ed8;font-size:13px;margin-bottom:24px}
+.hero h1{font-size:clamp(36px,8vw,64px);font-weight:800;background:linear-gradient(90deg,#ff7ac6,#a78bfa,#7dd3fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:18px;line-height:1.2;padding:0 10px}
+.hero p{font-size:clamp(14px,3.5vw,18px);color:#a8a3c4;margin-bottom:36px;padding:0 20px}
+.hero .ips{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;margin-bottom:40px;padding:0 20px}
+.hero .ip-card{padding:14px 24px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font-size:14px}
+.hero .ip-card b{color:#ff9ed8;font-family:monospace}
+
+/* ===== 通用板块 ===== */
+.status{max-width:1100px;margin:0 auto 80px;padding:0 24px;width:100%}
+.status-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:28px;margin-bottom:20px}
+.status-card .head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:22px}
+.status-card .head h3{font-size:17px;color:#e8e6f5;word-break:break-all}
+.status-card .head .addr{font-family:monospace;background:rgba(0,0,0,.35);padding:6px 14px;border-radius:8px;font-size:13px;color:#a8a3c4;word-break:break-all;max-width:100%}
+.status-card .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.status-card .cell{background:rgba(0,0,0,.25);border-radius:12px;padding:18px;text-align:center}
+.status-card .cell small{display:block;color:#8a85a8;font-size:12px;margin-bottom:8px}
+.status-card .cell b{font-size:22px;color:#7dd3fc;word-break:break-all}
+.status-card .cell .on{color:#4ade80}
+.section{max-width:1100px;margin:0 auto 80px;padding:0 24px;width:100%}
+.section h2{font-size:clamp(22px,5vw,32px);font-weight:700;margin-bottom:28px;background:linear-gradient(90deg,#ff7ac6,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:24px;transition:.25s}
+.card:hover{transform:translateY(-4px);border-color:rgba(255,122,198,.35);box-shadow:0 8px 30px rgba(255,122,198,.12)}
+.card h4{font-size:17px;margin-bottom:12px;color:#ff9ed8}
+.card p,.card li{font-size:14px;color:#a8a3c4;line-height:1.8;word-break:break-all}
+.card ul{list-style:none}
+.card ul li::before{content:"▸ ";color:#7dd3fc}
+.card .big{font-size:clamp(18px,4vw,26px);font-weight:800;color:#7dd3fc;font-family:monospace;margin:8px 0;word-break:break-all}
+.dl-btn{display:inline-block;margin-top:16px;padding:10px 22px;border-radius:10px;background:linear-gradient(90deg,#ff7ac6,#a78bfa);color:#fff!important;font-size:14px;font-weight:600;transition:.25s;text-decoration:none}
+.dl-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,122,198,.35)}
+.qq{text-align:center;background:linear-gradient(135deg,rgba(255,122,198,.08),rgba(167,139,250,.08));border:1px solid rgba(255,122,198,.2);border-radius:20px;padding:40px 20px}
+.qq .num{font-size:clamp(24px,6vw,36px);font-weight:800;color:#ff9ed8;font-family:monospace;margin:12px 0;word-break:break-all}
+.trust{max-width:1100px;margin:0 auto 80px;padding:0 24px;width:100%}
+.trust-inner{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;background:linear-gradient(135deg,rgba(74,222,128,.06),rgba(125,211,252,.06));border:1px solid rgba(74,222,128,.2);border-radius:20px;padding:32px 28px}
+.trust-item{text-align:center;padding:12px}
+.trust-item .ico{font-size:32px;margin-bottom:10px}
+.trust-item .ttl{font-size:13px;color:#8a85a8;margin-bottom:6px}
+.trust-item .val{font-size:15px;color:#4ade80;font-weight:600;word-break:break-all}
+.trust-item .val.blue{color:#7dd3fc}
+.trust-item .val.pink{color:#ff9ed8}
+footer{text-align:center;padding:40px 20px;color:#6b6690;font-size:13px;border-top:1px solid rgba(255,255,255,.06);word-break:break-all}
+footer .dev{color:#ff9ed8;font-weight:600;margin-top:6px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99999;display:none;align-items:center;justify-content:center;padding:16px}
+.modal.show{display:flex}
+.modal .box{background:#161428;border:1px solid rgba(255,255,255,.1);border-radius:16px;max-width:100%;max-height:88vh;overflow:auto;padding:24px;width:900px}
+.modal .box h3{color:#ff9ed8;margin-bottom:16px;font-size:18px}
+.modal .box pre{white-space:pre-wrap;word-break:break-all;font-size:12px;color:#c9c4e0;background:rgba(0,0,0,.4);padding:14px;border-radius:10px;max-height:60vh;overflow:auto;line-height:1.6}
+.modal .box button{margin-top:16px;padding:10px 24px;border:none;border-radius:8px;background:linear-gradient(90deg,#ff7ac6,#a78bfa);color:#fff;cursor:pointer;font-size:14px;width:100%}
+
+/* ===== 背景音乐播放器 ===== */
+}
+.bgm-row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:8px 0;font-size:13px;color:#e8e6f5}
+.bgm-ctrl{background:none;border:none;color:#e8e6f5;font-size:20px;cursor:pointer;padding:6px 10px;border-radius:8px;transition:.2s}
+.bgm-ctrl:active{background:rgba(255,122,198,.2)}
+
+/* ===== 响应式 ===== */
+@media(max-width:900px){
+.top-nav{padding:12px 20px}
+.top-nav .menu{gap:14px}
+.top-nav .menu a{font-size:13px}
+.liquid-btn{padding:8px 18px;font-size:13px}
+}
+@media(max-width:768px){
+.top-nav{padding:12px 16px}
+.top-nav .menu{display:none}
+.burger{display:block}
+.hero{padding:100px 16px 40px;min-height:auto}
+.hero .ip-card{padding:10px 16px;font-size:13px;width:100%}
+.status-card{padding:20px 16px}
+.status-card .grid{grid-template-columns:1fr;gap:12px}
+.status-card .head{flex-direction:column;align-items:flex-start}
+.section{margin-bottom:60px;padding:0 16px}
+.card{padding:20px}
+.trust-inner{padding:24px 16px;gap:12px}
+footer{padding:30px 16px;font-size:12px}
+#intro .line{bottom:60px;width:140px}
+.bgm-row{font-size:12px;margin:6px 0}
+.liquid-btn{padding:8px 16px;font-size:12px}
+}
+@media(max-width:380px){
+.hero h1{font-size:30px}
+.hero p{font-size:13px}
+}
+
+/* ===== 省电 & 性能优化 ===== */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  #intro .halo,#intro .line::after{display:none}
+  .liquid-btn{animation:none}
+}
+body.low-power .liquid-btn{animation:none}
+body.low-power .liquid-btn .glow{display:none}
+body.low-power #intro .halo{display:none}
+body.low-power .top-nav{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(13,11,26,.95)}
+body.low-power .hero{background:#0d0b1a}
+body.background-paused *{animation-play-state:paused!important}
+</style>
+
+
+<style>
+/* MILD_SAVE 温和降耗，保留滚动与交互 */
+.hero{background:#0d0b1a!important}
+.top-nav,.mobile-menu,.modal .box{background:rgba(13,11,26,.98)!important}
+.liquid-btn{animation:none!important}
+.liquid-btn .glow{display:none!important}
+#intro .halo{display:none!important}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style><style>
+html,body{overflow-y:auto!important;overflow-x:hidden!important;height:auto!important;position:static!important}
+*{touch-action:auto!important}
+</style><style>
+/* MOBILE_FIX 手机比例优化 */
+@media (max-width: 768px){
+  .hero{
+    min-height:auto!important;
+    padding:40px 16px 30px!important;
+  }
+  .hero h1{
+    font-size:32px!important;
+    line-height:1.3!important;
+    margin-bottom:12px!important;
+  }
+  .hero p{
+    font-size:14px!important;
+    margin-bottom:24px!important;
+  }
+  .hero .badge{
+    font-size:12px!important;
+    padding:5px 12px!important;
+    margin-bottom:16px!important;
+  }
+  .hero .ips{
+    gap:10px!important;
+    margin-bottom:24px!important;
+  }
+  .hero .ip-card{
+    padding:10px 14px!important;
+    font-size:13px!important;
+    width:100%!important;
+    max-width:280px!important;
+  }
+}
+@media (max-width: 380px){
+  .hero h1{font-size:28px!important;}
+  .hero .ip-card{font-size:12px!important;}
+}
+</style></head>
+<body >
+
+
+
+<!-- 顶部导航 -->
+<nav class="top-nav">
+  <div class="brand" onclick="window.scrollTo({top:0,behavior:'smooth'})">幻域</div>
+  <ul class="menu">
+    <li><a href="#home">🏠 首页</a></li>
+    <li><a href="#status">📊 查服状态</a></li>
+    <li><a href="#connect">🔗 连接信息</a></li>
+    <li><a href="#activity">🎉 全服活动</a></li>
+    <li><a href="#qq">💬 QQ群</a></li>
+    <li><a href="#rules">📜 服务器规则</a></li>
+    <li><a onclick="showInfo()">📋 网站信息</a></li>
+    <li><a onclick="showSource()">💻 网站源代码</a></li>
+  </ul>
+  <!-- 液态按钮 -->
+  <button class="liquid-btn" id="liquidBtn" onclick="scrollToConnect()">
+    <span class="glow"></span>
+    <span>开始游戏</span>
+  </button>
+  <button class="burger" onclick="toggleMenu()">☰</button>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#home" onclick="toggleMenu()">🏠 首页</a>
+  <a href="#status" onclick="toggleMenu()">📊 查服状态</a>
+  <a href="#connect" onclick="toggleMenu()">🔗 连接信息</a>
+  <a href="#activity" onclick="toggleMenu()">🎉 全服活动</a>
+  <a href="#qq" onclick="toggleMenu()">💬 QQ群</a>
+  <a href="#rules" onclick="toggleMenu()">📜 服务器规则</a>
+  <a onclick="showInfo();toggleMenu()">📋 网站信息</a>
+  <a onclick="showSource();toggleMenu()">💻 网站源代码</a>
+</div>
+
+<section class="hero" id="home">
+  <span class="badge">● 服务器运行中 · 实时监测</span>
+  <h1>这里是幻域官网</h1>
+  <p>Java & 基岩版 互通 · 离线可进</p>
+  <div class="ips">
+    <div class="ip-card">🟢 Java（新）：<b>huanyu.fucku.top</b></div>
+    <div class="ip-card">🔵 Java（旧）：<b></b></div>
+    <div class="ip-card">🪨 基岩：<b>huanyu.fucku.top:36784</b></div>
+    <div class="ip-card">🪨 基岩（旧）：<b></b></div>
+  </div>
+</section>
+
+
+<!-- WEB_SECURITY_START -->
+<section class="section" id="security" style="margin-top:-40px;margin-bottom:60px">
+  <h2>🔒 网页安全</h2>
+  <div class="cards">
+    <div class="card" style="text-align:center">
+      <div style="font-size:40px;margin-bottom:10px">🛡️</div>
+      <h4>SSL 证书</h4>
+      <p>本站已部署 <b style="color:#4ade80">SSL 证书</b>，采用 <b style="color:#7dd3fc">TLS 1.2 / 1.3</b> 加密协议，保障数据传输安全。</p>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:40px;margin-bottom:10px">🔐</div>
+      <h4>网站安全</h4>
+      <p>全站 <b style="color:#4ade80">HTTPS 加密访问</b>，启用 <b style="color:#7dd3fc">HSTS</b>、<b style="color:#7dd3fc">XSS 防护</b>、<b style="color:#7dd3fc">防盗链</b>，内容全程加密。</p>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:40px;margin-bottom:10px">✅</div>
+      <h4>连接安全</h4>
+      <p>访问连接状态：<b style="color:#4ade80">安全</b><br>
+      证书状态：<b style="color:#4ade80">有效</b><br>
+      加密方式：<b style="color:#7dd3fc">HTTPS</b></p>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:40px;margin-bottom:10px">🚫</div>
+      <h4>防攻击</h4>
+      <p>内置 <b style="color:#4ade80">CC 攻击防御</b>，异常请求自动拦截，黑名单实时生效，保护网站稳定运行。</p>
+    </div>
+  </div>
+</section>
+<!-- WEB_SECURITY_END -->
+
+<section class="status" id="status">
+  <div class="status-card">
+    <div class="head">
+      <h3>🔮 幻域服务器 · 实时状态</h3>
+      <span class="addr">huanyu.fucku.top:36784</span>
+    </div>
+    <div class="grid">
+      <div class="cell"><small>在线人数</small><b id="mc-players">--</b></div>
+      
+      <div class="cell"><small>状态</small><b id="mc-status" class="on">● 运行中</b></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="connect">
+  <h2>🎮 服务器信息</h2>
+  <div class="cards">
+    <div class="card"><h4>Java 版 IP（新）</h4><div class="big">huanyu.fucku.top</div></div>
+    <div class="card"><h4>基岩版端口</h4><div class="big">36784</div><p style="font-size:12px;color:#8a85a8;margin-top:6px">新：huanyu.fucku.top:36784<br></div>
+    <div class="card"><h4>Java 版本</h4><p>1.21</p></div>
+    <div class="card"><h4>基岩版版本</h4><p>1.26 以上</p></div>
+    <div class="card"><h4>验证方式</h4><p>离线可进，无需正版账号</p></div>
+  </div>
+</section>
+
+<section class="section" id="activity">
+  <h2>🎉 全服活动</h2>
+  <div class="cards">
+    <div class="card"><h4>开服庆典</h4><p>活动期间登录即可领取新手礼包，先到先得。</p></div>
+    <div class="card"><h4>建造大赛</h4><p>欢迎玩家自由建造，优秀作品将获得专属称号。</p></div>
+    <div class="card"><h4>双服联动</h4><p>与联动服务器互通，玩家可自由穿梭。</p></div>
+  </div>
+</section>
+
+<section class="section" id="rules">
+  <h2>📜 服务器规则</h2>
+  <div class="cards">
+    <div class="card"><h4>禁止开挂</h4><p>严禁使用外挂、矿透、影响平衡的辅助模组或材质包，一经发现直接封禁 IP。</p></div>
+    <div class="card"><h4>文明游戏</h4><p>禁止辱骂、刷屏、恶意破坏他人建筑。</p></div>
+    <div class="card"><h4>账号安全</h4><p>请牢记自己的密码，忘记概不负责。</p></div>
+  </div>
+</section>
+
+<section class="section" id="qq">
+  <div class="qq">
+    <h2>💬 QQ 群</h2>
+    <p style="color:#a8a3c4;margin-top:8px">加入我们，一起玩耍</p>
+    <div class="num">1124545075</div>
+    <p style="color:#8a85a8;font-size:13px">幻域团队</p>
+  </div>
+</section>
+
+<section class="trust">
+  <div class="trust-inner">
+    <div class="trust-item"><div class="ico"></div><div class="ttl">网页证书</div><div class="val">已部署 SSL 证书</div></div>
+    <div class="trust-item"><div class="ico"></div><div class="ttl">访问加密</div><div class="val blue">内容已加密传输</div></div>
+    <div class="trust-item"><div class="ico"></div><div class="ttl">连接安全</div><div class="val">HTTPS 安全连接</div></div>
+    <div class="trust-item"><div class="ico"></div><div class="ttl">网页开发者</div><div class="val pink">徐浩宇</div></div>
+  </div>
+</section>
+
+<section class="section" id="download">
+  <h2>📥 下载中心</h2>
+  <div class="cards">
+    <div class="card" style="text-align:center"><div style="font-size:44px;margin-bottom:10px">🖥️</div><h4>PCL2 启动器</h4><p>电脑端 Java 版启动器，支持正版/离线登录</p><a class="dl-btn" href="https://afdian.com/p/0164034c016c11ebafcb52540025c377" target="_blank" rel="noopener">前往下载 →</a></div>
+    <div class="card" style="text-align:center"><div style="font-size:44px;margin-bottom:10px">☕</div><h4>Java 版文件</h4><p>Zalith Launcher 2.6.1 · 安卓端 Java 启动器</p><a class="dl-btn" href="/apk/Zalith_Launcher_2.6.1.apk" download>下载 APK →</a></div>
+    <div class="card" style="text-align:center"><div style="font-size:44px;margin-bottom:10px">🪨</div><h4>基岩版文件</h4><p>Minecraft 1.26.45.1 · 安卓基岩版</p><a class="dl-btn" href="/apk/Minecraft_1.26.45.1.apk" download>下载 APK →</a></div>
+    <div class="card" style="text-align:center"><div style="font-size:44px;margin-bottom:10px">📱</div><h4>官网 APP</h4><p>星茉·幻域 官方安卓客户端</p><a class="dl-btn" href="/apk/xingmo_huanyu_app.apk" download>下载 APK →</a></div>
+  </div>
+</section>
+
+<section class="section" id="siteinfo">
+  <h2>ℹ️ 更多网站信息</h2>
+  <div class="cards">
+    <div class="card"><h4>网站加密</h4><p>本站已部署 <b style="color:#4ade80">SSL 证书</b>，全站启用 <b style="color:#7dd3fc">HTTPS 加密传输</b>，访问内容全程加密，防止被窃听和篡改。</p></div>
+    <div class="card"><h4>域名信息</h4><p><b style="color:#4ade80">主网址：</b><br><a href="https://xingmo.waw.beida.pw/" target="_blank" rel="noopener" style="color:#ff9ed8;word-break:break-all">https://xingmo.waw.beida.pw/</a></p></div>
+    <div class="card"><h4>服务器信息</h4><p>Java IP：<b style="color:#ff9ed8"></b><br>基岩端口：<b style="color:#ff9ed8">36784</b><br>支持版本：Java 1.21 / 基岩 1.26+</p></div>
+    <div class="card"><h4>技术架构</h4><p>托管环境：<b style="color:#7dd3fc">幻域团队</b><br>加密方式：<b style="color:#4ade80">TLS 1.2 / 1.3</b><br>内容类型：静态 HTML / CSS / JS</p></div>
+    <div class="card"><h4>网页开发者</h4><p>开发者：<b style="color:#ff9ed8;font-size:18px">徐浩宇</b><br>团队：<b style="color:#a8a3c4">幻域团队</b><br>版权：© 2026 幻域官网 · 保留所有权利</p></div>
+    <div class="card"><h4>声明</h4><p>本站为幻域服务器官方网站，内容由幻域团队编写，请勿二次转发或用于商业用途。</p></div>
+  </div>
+</section>
+
+<footer>
+  幻域官网 · 幻域团队编写 · 请勿二次转发<br>
+  主网址：xingmo.waw.beida.pw
+  <div class="dev">网页开发者：徐浩宇 · 幻域团队</div>
+</footer>
+
+<!-- 背景音乐 -->
+
+
+<div class="modal" id="infoModal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="box">
+    <h3>网站信息</h3>
+    <p style="line-height:2;color:#c9c4e0">
+      网站名称：幻域官网<br>
+      服务器：幻域<br>
+      Java IP（新）：huanyu.fucku.top<br>
+      基岩地址（新）：huanyu.fucku.top:36784<br>
+      主网址：https://xingmo.waw.beida.pw/<br>
+      备用网址：http://xingmo2026.fucku.top/<br>
+      证书状态：已部署 SSL<br>
+      访问加密：是<br>
+      技术支持：幻域团队<br>
+      网页开发者：徐浩宇
+    </p>
+    <button onclick="document.getElementById('infoModal').classList.remove('show')">关闭</button>
+  </div>
+</div>
+
+<div class="modal" id="srcModal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="box">
+    <h3>网站源代码</h3>
+    <pre id="srcPre"></pre>
+    <button onclick="document.getElementById('srcModal').classList.remove('show')">关闭</button>
+  </div>
+</div>
+
+<script>
+// ===== 性能优化：低端设备 / 省电模式 检测 =====
+(function(){
+  var lowPower = false;
+  // 1. 系统省电模式
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) lowPower = true;
+  // 2. 内存小（<4GB）
+  if (navigator.deviceMemory && navigator.deviceMemory < 4) lowPower = true;
+  // 3. CPU 核心少
+  if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) lowPower = true;
+  // 4. 移动端 + 省电
+  if (/Android|iPhone|iPad/i.test(navigator.userAgent) && window.matchMedia('(prefers-reduced-motion: reduce)').matches) lowPower = true;
+  if (lowPower) document.body.classList.add('low-power');
+})();
+
+// ===== 后台暂停：切到后台暂停动画和音乐，省电 =====
+document.addEventListener('visibilitychange', function(){
+  if (document.hidden){
+    document.body.classList.add('background-paused');
+    if (audio && !audio.paused) { audio.dataset.wasPlaying = '1'; audio.pause(); }
+  } else {
+    document.body.classList.remove('background-paused');
+    if (audio && audio.dataset.wasPlaying === '1') { audio.play().catch(function(){}); delete audio.dataset.wasPlaying; }
+  }
+});
+
+
+
+// ===== 液态按钮涟漪 =====
+(function(){
+  var btn = document.getElementById('liquidBtn');
+  if (!btn) return;
+  btn.addEventListener('click', function(e){
+    var rect = btn.getBoundingClientRect();
+    var r = document.createElement('span');
+    r.className = 'ripple';
+    var size = Math.max(rect.width, rect.height);
+    r.style.width = r.style.height = size + 'px';
+    r.style.left = (e.clientX - rect.left - size/2) + 'px';
+    r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+    btn.appendChild(r);
+    setTimeout(function(){ r.remove(); }, 600);
+  });
+})();
+function scrollToConnect(){ document.getElementById('connect').scrollIntoView({behavior:'smooth'}); }
+
+
+
+// ===== 悬浮窗 =====
+function showInfo(){ document.getElementById('infoModal').classList.add('show'); }
+function showSource(){ document.getElementById('srcPre').textContent = document.documentElement.outerHTML; document.getElementById('srcModal').classList.add('show'); }
+function toggleMenu(){ document.getElementById('mobileMenu').classList.toggle('open'); }
+document.querySelectorAll('a[href^="#"]').forEach(function(a){
+  a.addEventListener('click', function(e){ e.preventDefault(); var t = document.querySelector(this.getAttribute('href')); if(t) t.scrollIntoView({behavior:'smooth'}); });
+});
+</script>
+
+
+
+
+<!-- MC_STATUS_START -->
+<script>
+(function(){
+  var STATUS_API = "https://api.mcsrvstat.us/3/huanyu.fucku.top:36784";
+  var POLL_VISIBLE = 300000;   // 页面可见时，60 秒查一次
+  var timer = null;
+  var inFlight = false;
+
+  var elPlayers = document.getElementById("mc-players");
+  var elStatus  = document.getElementById("mc-status");
+
+  function setStatus(online, players){
+    if(online){
+      elStatus.textContent = "● 运行中";
+      elStatus.className = "on";
+      elPlayers.textContent = (players === null || players === undefined) ? "--" : players;
+    } else {
+      elStatus.textContent = "● 维护中";
+      elStatus.style.color = "#f59e0b";  // 橙色
+      elPlayers.textContent = "--";
+    }
+  }
+
+  function fetchStatus(){
+    if(inFlight) return;
+    inFlight = true;
+    // 加时间戳，避免浏览器/中间层缓存旧结果
+    fetch(STATUS_API + "?_=" + Date.now(), {cache:"no-store"})
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d && d.online){
+          setStatus(true, (d.players && d.players.online) || 0);
+        } else {
+          setStatus(false);
+        }
+      })
+      .catch(function(){
+        setStatus(false);
+      })
+      .finally(function(){ inFlight = false; });
+  }
+
+  function startPolling(){
+    if(timer) return;
+    fetchStatus();                       // 立即查一次
+    timer = setInterval(fetchStatus, POLL_VISIBLE);
+  }
+
+  function stopPolling(){
+    if(timer){ clearInterval(timer); timer = null; }
+  }
+
+  // 只在页面可见时轮询
+  function handleVisibility(){
+    if(document.visibilityState === "visible"){
+      startPolling();
+    } else {
+      stopPolling();   // 切后台停止查询
+    }
+  }
+
+  document.addEventListener("visibilitychange", handleVisibility);
+  window.addEventListener("pageshow", handleVisibility);
+
+  // 首次进入
+  if(document.visibilityState === "visible") startPolling();
+})();
+</script>
+<!-- MC_STATUS_END -->
+
+<!-- BROWSER_CHECK_START -->
+<script>
+(function(){
+  // 检测 HTTPS
+  var isHTTPS = location.protocol === 'https:';
+  var isLocal = /^localhost$|^127\.|^192\.168\./.test(location.hostname);
+  
+  // 检测浏览器
+  var ua = navigator.userAgent;
+  var browser = 'Unknown';
+  if (/Edg\//.test(ua)) browser = 'Edge';
+  else if (/Chrome\//.test(ua)) browser = 'Chrome';
+  else if (/Firefox\//.test(ua)) browser = 'Firefox';
+  else if (/Safari\//.test(ua)) browser = 'Safari';
+  else if (/MSIE|Trident/.test(ua)) browser = 'IE';
+  
+  // 检测证书是否被信任（通过 fetch 一个 HEAD 请求，看是否有错误）
+  var certOK = true;
+  if (isHTTPS && !isLocal) {
+    fetch(location.href, {method: 'HEAD', cache: 'no-store'})
+      .then(function(r){ 
+        if (!r.ok && r.status !== 0) certOK = false; 
+      })
+      .catch(function(){ certOK = false; });
+  }
+  
+  // 输出到 console
+  console.log('====== 浏览器兼容检测 ======');
+  console.log('浏览器:', browser);
+  console.log('协议:', isHTTPS ? 'HTTPS ✅' : 'HTTP ⚠️');
+  console.log('域名:', location.hostname);
+  console.log('证书:', certOK ? '正常' : '可能有问题');
+  console.log('==========================');
+})();
+</script>
+<!-- BROWSER_CHECK_END -->
+
+</body>
+</html>
